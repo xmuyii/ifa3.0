@@ -149,6 +149,88 @@ const MINOR_MEANINGS = [
   ["King of Pentacles", "Real, earned abundance, generous because there's genuinely enough to share.", "Success measured only in what can be counted, or generosity that's really about control."],
 ];
 
+const TAROT_IMAGES = {
+  "The Fool": "/tarot/Major00.jpg",
+  "The Magician": "/tarot/Major01.jpg",
+  "The High Priestess": "/tarot/Major02.jpg",
+  "The Empress": "/tarot/Major03.jpg",
+  "The Emperor": "/tarot/Major04.jpg",
+  "The Hierophant": "/tarot/Major05.jpg",
+  "The Lovers": "/tarot/Major06.jpg",
+  "The Chariot": "/tarot/Major07.jpg",
+  "Strength": "/tarot/Major08.jpg",
+  "The Hermit": "/tarot/Major09.jpg",
+  "Wheel of Fortune": "/tarot/Major10.jpg",
+  "Justice": "/tarot/Major11.jpg",
+  "The Hanged Man": "/tarot/Major12.jpg",
+  "Death": "/tarot/Major13.jpg",
+  "Temperance": "/tarot/Major14.jpg",
+  "The Devil": "/tarot/Major15.jpg",
+  "The Tower": "/tarot/Major16.jpg",
+  "The Star": "/tarot/Major17.jpg",
+  "The Moon": "/tarot/Major18.jpg",
+  "The Sun": "/tarot/Major19.jpg",
+  "Judgement": "/tarot/Major20.jpg",
+  "The World": "/tarot/Major21.jpg",
+  "Ace of Wands": "/tarot/Wands01.jpg",
+  "Two of Wands": "/tarot/Wands02.jpg",
+  "Three of Wands": "/tarot/Wands03.jpg",
+  "Four of Wands": "/tarot/Wands04.jpg",
+  "Five of Wands": "/tarot/Wands05.jpg",
+  "Six of Wands": "/tarot/Wands06.jpg",
+  "Seven of Wands": "/tarot/Wands07.jpg",
+  "Eight of Wands": "/tarot/Wands08.jpg",
+  "Nine of Wands": "/tarot/Wands09.jpg",
+  "Ten of Wands": "/tarot/Wands10.jpg",
+  "Page of Wands": "/tarot/Wands11.jpg",
+  "Knight of Wands": "/tarot/Wands12.jpg",
+  "Queen of Wands": "/tarot/Wands13.jpg",
+  "King of Wands": "/tarot/Wands14.jpg",
+  "Ace of Cups": "/tarot/Cups01.jpg",
+  "Two of Cups": "/tarot/Cups02.jpg",
+  "Three of Cups": "/tarot/Cups03.jpg",
+  "Four of Cups": "/tarot/Cups04.jpg",
+  "Five of Cups": "/tarot/Cups05.jpg",
+  "Six of Cups": "/tarot/Cups06.jpg",
+  "Seven of Cups": "/tarot/Cups07.jpg",
+  "Eight of Cups": "/tarot/Cups08.jpg",
+  "Nine of Cups": "/tarot/Cups09.jpg",
+  "Ten of Cups": "/tarot/Cups10.jpg",
+  "Page of Cups": "/tarot/Cups11.jpg",
+  "Knight of Cups": "/tarot/Cups12.jpg",
+  "Queen of Cups": "/tarot/Cups13.jpg",
+  "King of Cups": "/tarot/Cups14.jpg",
+  "Ace of Swords": "/tarot/Swords01.jpg",
+  "Two of Swords": "/tarot/Swords02.jpg",
+  "Three of Swords": "/tarot/Swords03.jpg",
+  "Four of Swords": "/tarot/Swords04.jpg",
+  "Five of Swords": "/tarot/Swords05.jpg",
+  "Six of Swords": "/tarot/Swords06.jpg",
+  "Seven of Swords": "/tarot/Swords07.jpg",
+  "Eight of Swords": "/tarot/Swords08.jpg",
+  "Nine of Swords": "/tarot/Swords09.jpg",
+  "Ten of Swords": "/tarot/Swords10.jpg",
+  "Page of Swords": "/tarot/Swords11.jpg",
+  "Knight of Swords": "/tarot/Swords12.jpg",
+  "Queen of Swords": "/tarot/Swords13.jpg",
+  "King of Swords": "/tarot/Swords14.jpg",
+  "Ace of Pentacles": "/tarot/Coins01.jpg",
+  "Two of Pentacles": "/tarot/Coins02.jpg",
+  "Three of Pentacles": "/tarot/Coins03.jpg",
+  "Four of Pentacles": "/tarot/Coins04.jpg",
+  "Five of Pentacles": "/tarot/Coins05.jpg",
+  "Six of Pentacles": "/tarot/Coins06.jpg",
+  "Seven of Pentacles": "/tarot/Coins07.jpg",
+  "Eight of Pentacles": "/tarot/Coins08.jpg",
+  "Nine of Pentacles": "/tarot/Coins09.jpg",
+  "Ten of Pentacles": "/tarot/Coins10.jpg",
+  "Page of Pentacles": "/tarot/Coins11.jpg",
+  "Knight of Pentacles": "/tarot/Coins12.jpg",
+  "Queen of Pentacles": "/tarot/Coins13.jpg",
+  "King of Pentacles": "/tarot/Coins14.jpg",
+};
+
+
 function tarotMeaning(name) {
   const major = MAJORS.find((m) => m[0] === name);
   if (major) return { upright: major[1], reversed: major[2] };
@@ -746,6 +828,7 @@ export default function Ifatarot() {
   const [draftBirthOdu, setDraftBirthOdu] = useState(emptyBirthOdu);
   const [outfitLoading, setOutfitLoading] = useState(false);
   const [outfitError, setOutfitError] = useState(null);
+  const [outfitResult, setOutfitResult] = useState(null);
   const [obStep, setObStep] = useState(0);
 
   const [dimKey, setDimKey] = useState(null);
@@ -906,6 +989,7 @@ export default function Ifatarot() {
       const entry = { date: today, card, advice: text };
       const updated = { ...profile, dailyOutfit: entry };
       setProfile(updated); setDraftProfile(updated);
+      setOutfitResult(entry);
       try { await window.storage.set("ifatarot:profile", JSON.stringify(updated)); } catch (e) {}
       await consumeCredit();
       pushEvent("reading", { dimension: "outfit", traditions: [card.tradition], cardNames: [{ tradition: card.tradition, name: card.name }] });
@@ -945,6 +1029,11 @@ export default function Ifatarot() {
   useEffect(() => {
     if (screen === "dim-question") setQuestionSuggestions(pickRandom(SUGGESTED_QUESTIONS, 6));
     if (screen === "home") setHomeSuggestions(pickRandom(SUGGESTED_QUESTIONS, 3));
+    if (screen === "todays-outfit") {
+      const today = new Date().toISOString().slice(0, 10);
+      if (profile.dailyOutfit && profile.dailyOutfit.date === today) setOutfitResult(profile.dailyOutfit);
+      else setOutfitResult(null);
+    }
   }, [screen]);
 
   function creditGate() {
@@ -1143,12 +1232,15 @@ export default function Ifatarot() {
     if (!creditGate()) { setScreen("dim-question"); return; }
     setLoading(true);
     setReadingFailed(false);
-    const positions = useMode.positions.map((p) => {
-      const traditions = traditionsForPosition(p.key, useMode, useAssignment);
-      const cards = traditions.map((t) => drawCard(t, t === "tarot" ? profile.tarotReversals : false));
-      return { ...p, cards };
+    // Each position draws one Ifa card (spirit realm).
+    // One Tarot card is drawn once for the whole reading (physical realm).
+    const ifaDeck = (useAssignment && useAssignment.__single) || "ifa256";
+    const physicalCard = drawCard("tarot", profile.tarotReversals);
+    const positions = useMode.positions.map((p, idx) => {
+      const ifaCard = drawCard(ifaDeck, false);
+      return { ...p, cards: [ifaCard], physicalCard: idx === 0 ? physicalCard : null };
     });
-        setResolved(positions);
+    setResolved(positions);
     setReading("");
     setScreen(profile.readingMode === "patience" ? "dim-reveal" : "dim-reading");
 
@@ -1691,8 +1783,7 @@ export default function Ifatarot() {
         )}
 
         {screen === "todays-outfit" && (() => {
-          const today = new Date().toISOString().slice(0, 10);
-          const outfit = profile.dailyOutfit && profile.dailyOutfit.date === today ? profile.dailyOutfit : null;
+          const outfit = outfitResult;
           return (
             <div>
               <Header title="Today's Outfit" onBack={() => go("home")} />
